@@ -1,0 +1,10 @@
+<!-- Robix Pod Script --> 
+
+<podScript version="1.0.0">
+ <name>Pratica 5.rbxScript</name>
+
+ <text>move 1 to -557, 2 to -141, 3 to -620;
+wait 10;
+move 1 to 350, 2 to -920, 3 to 1040;
+wait 10;</text>
+</podScript>
