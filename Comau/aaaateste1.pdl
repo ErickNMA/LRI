@@ -1,0 +1,29 @@
+--$PROP_REVISION:$
+--$PROP_TITLE:$
+--$PROP_HELP:$
+--$PROP_VERSION:2.31.003$
+--$PROP_DATE:2023-09-04 14:24:34$
+--$PROP_AUTHOR:Renato$
+--$PROP_HOST:RENATOPC$
+--$PROP_UVL:0$
+--$PROP_UML:0$
+PROGRAM aaaateste1 PROG_ARM = 1
+  
+VAR pnt0001P, pnt0002P, pnt0003P, pnt0004P, pnt0005P : POSITION
+  
+BEGIN
+  MOVE TO pnt0001P		-- move para home
+
+  MOVE TO pnt0002P		-- move para aux 1
+  MOVE LINEAR TO pnt0003P	-- encosta objeto
+  DELAY 3000			-- espera 3s
+  MOVE LINEAR TO pnt0002P	-- move para aux 1
+  
+  MOVE TO pnt0004P		-- move para aux 2
+  MOVE LINEAR TO pnt0005P	-- encosta no objeto
+  DELAY 3000			-- espera 3s
+  MOVE LINEAR TO pnt0004P	-- move para aux 2
+
+  MOVE LINEAR TO pnt0001P	-- move para home
+  
+END aaaateste1
