@@ -1,0 +1,26 @@
+--$PROP_REVISION:$
+--$PROP_TITLE:$
+--$PROP_HELP:$
+--$PROP_VERSION:2.31.003$
+--$PROP_DATE:2023-09-04 14:24:34$
+--$PROP_AUTHOR:Grupo_2$
+--$PROP_HOST:GRUPO2$
+--$PROP_UVL:0$
+--$PROP_UML:0$
+PROGRAM atv_g02 PROG_ARM = 1
+  
+VAR pnt0001P, pnt0002P, pnt0003P, pnt0004P, pnt0005P : POSITION
+  
+BEGIN
+
+  MOVE TO pnt0001P		-- move para home
+
+  MOVE TO pnt0002P		-- move para aux 1
+  
+  MOVEFLY TO pnt0001P ADVANCE   -- movefly para home
+  
+  MOVE TO pnt0004P 		-- move para aux 2
+
+  MOVE TO pnt0001P		-- move para home
+  
+END atv_g02
