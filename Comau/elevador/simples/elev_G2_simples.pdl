@@ -1,0 +1,94 @@
+-- Grupo_2: Erick, Loren, Tiago e Robson
+--$PROP_REVISION:$
+--$PROP_TITLE:$
+--$PROP_HELP:$
+--$PROP_VERSION:2.40.009$
+--$PROP_DATE:2023-10-16 16:13:11$
+--$PROP_AUTHOR:PU$
+--$PROP_HOST:CNTRLC5G_2213436$
+--$PROP_UVL:0$
+--$PROP_UML:0$
+
+PROGRAM elev_G2_simples PROG_ARM = 1
+  
+VAR 
+	atual, proximo, i, j, k : INTEGER
+	HOME, A1, A2, A3, A4 : JOINTPOS
+	andares: ARRAY [4] OF JOINTPOS
+CONST
+	TEMPO_ABERTURA = 8000
+
+-- Rotina para desligar todos os LED's:
+ROUTINE desligaLed
+BEGIN
+	FOR j := 21 TO 24 DO
+		$FDOUT[j] := OFF
+	ENDFOR
+END desligaLed
+
+-- Fun‡ão para abrir a porta do elevador:
+ROUTINE abrePorta
+BEGIN
+	MOVE TO { , , , , , andares[atual][6]+60}
+END abrePorta
+
+-- Fun‡ão para fechar a porta do elevador:
+ROUTINE fechaPorta
+BEGIN
+   	MOVE TO andares[atual]
+END fechaPorta
+
+-- Fun‡ão para movimenta‡ão:
+ROUTINE movimenta
+BEGIN
+	IF atual < proximo THEN
+		FOR k := atual TO proximo DO
+			MOVE LINEAR TO andares[k]
+			atual := k
+			desligaLed	
+			$FDOUT[25-k] := ON
+		ENDFOR
+	ENDIF
+	IF atual > proximo THEN
+		FOR k := atual DOWNTO proximo DO
+			MOVE LINEAR TO andares[k]
+			atual := k
+			desligaLed	
+			$FDOUT[25-k] := ON
+		ENDFOR
+	ENDIF
+END movimenta
+    
+BEGIN
+	-- Defini‡ão do array de andares:
+    	andares[1] := A1
+    	andares[2] := A2
+    	andares[3] := A3
+    	andares[4] := A4
+
+	-- Movimenta‡ão para HOME:
+	MOVE TO HOME
+	DELAY 3000
+
+	-- Movimenta para o andar inicial:
+	MOVE TO andares[1]
+	desligaLed
+	$FDOUT[24] := ON
+	atual := 1
+	proximo := 1
+	abrePorta
+
+	--Looping principal:
+	WHILE TRUE DO
+		FOR i := 1 TO 4 DO
+			IF $FDIN[25-i] = TRUE THEN
+				IF (i <> atual) THEN
+					fechaPorta
+					proximo := i
+            				movimenta
+					abrePorta
+				ENDIF
+        		ENDIF
+		ENDFOR
+    	ENDWHILE  
+END elev_G2_simples

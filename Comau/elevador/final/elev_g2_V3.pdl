@@ -1,0 +1,127 @@
+--$PROP_REVISION:$
+--$PROP_TITLE:$
+--$PROP_HELP:$
+--$PROP_VERSION:2.31.003$
+--$PROP_DATE:2023-09-04 14:24:34$
+--$PROP_AUTHOR:Renato$
+--$PROP_HOST:RENATOPC$
+--$PROP_UVL:0$
+--$PROP_UML:0$
+
+PROGRAM elev_G2_V3 PROG_ARM = 1
+
+-- Declara‡ão de constantes:
+CONST
+	TEMPO_ESPERA = 8000
+
+-- Declara‡ão de vari veis:
+VAR 	
+	atual, target, i, j : INTEGER
+	HOME, A1, A2, A3, A4 : JOINTPOS
+	andares : ARRAY [4] OF JOINTPOS
+	buffer : ARRAY[4] OF INTEGER
+
+-- Rotina para atualizar o led do andar:
+ROUTINE attLed
+BEGIN
+	FOR i := 21 TO 24 DO
+    		$FDOUT[i] := OFF
+	ENDFOR
+	$FDOUT[25-atual] := ON
+END attLed
+
+-- Rotina para abrir a porta:
+ROUTINE abrePorta
+BEGIN
+    MOVE TO { , , , , , andares[atual][6]+60}
+END abrePorta
+
+-- Rotina para fechar a porta:
+ROUTINE fechaPorta
+BEGIN
+    MOVE TO andares[atual]
+END fechaPorta
+
+-- Rotina para organizar o buffer:
+ROUTINE orgBuff
+BEGIN
+	FOR i:=1 TO 3 DO
+    		buffer[i] := buffer[i+1]
+	ENDFOR
+    	buffer[4] := 0
+END orgBuff
+
+-- Rotina para atualizar o buffer:
+ROUTINE attBuff
+BEGIN
+	FOR i:=1 TO 4 DO
+		IF $FDIN[25-i] = TRUE THEN
+			FOR j:=1 TO 4 DO
+				IF buffer[j] = i THEN
+					BREAK
+				ENDIF
+				IF buffer[j] = 0 THEN
+					buffer[j] := i
+					BREAK
+				ENDIF
+			ENDFOR
+		ENDIF
+	ENDFOR
+END attBuff
+
+-- Rotina para movimenta‡ão:
+ROUTINE movimenta
+BEGIN
+	IF atual < target THEN
+		MOVE LINEAR TO andares[atual+1]
+		atual += 1
+	ENDIF
+	IF atual > target THEN
+		MOVE LINEAR TO andares[atual-1]
+		atual -= 1
+	ENDIF
+	attLed
+END movimenta
+
+-- Rotina principal:
+BEGIN
+	-- Inicializa‡ão das posi‡ões:
+    	andares[1] := A1
+    	andares[2] := A2
+    	andares[3] := A3
+    	andares[4] := A4
+
+	-- Inicializa‡ão do buffer:
+	FOR i:=1 TO 4 DO
+		buffer[i] := 0
+	ENDFOR
+
+	-- Inicializa‡ão de vari veis:
+	atual := 0
+
+	-- Indo para HOME:
+    	MOVE TO HOME
+	DELAY 3000
+
+	-- Indo para o primeiro andar:
+	buffer[1] := 1
+	
+	-- Loop principal:
+	$TIMER[1] := 0
+	WHILE TRUE DO
+		attBuff
+		target := buffer[1]
+		IF target <> 0 THEN
+			movimenta
+			IF atual = target THEN
+				orgBuff
+				abrePorta
+				$TIMER[1] := 0
+				WHILE $TIMER[1] < TEMPO_ESPERA DO
+					attBuff					
+				ENDWHILE
+				fechaPorta
+			ENDIF
+		ENDIF
+	ENDWHILE
+END elev_G2_V3
